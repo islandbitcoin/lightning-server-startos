@@ -38,24 +38,41 @@ export function log(message: string, details?: unknown) {
 export const getHttpInterfaceUrls = async (
   effects: any,
 ): Promise<string[]> => {
-  if (typeof effects?.systemQuery !== 'function') {
-    log('Interface URL lookup skipped; systemQuery is unavailable in this StartOS runtime')
-    return []
+  const urls: string[] = []
+
+  try {
+    const interfaces = await sdk.serviceInterface
+      .getAllOwn(effects, (interfaces) => interfaces)
+      .once()
+
+    for (const serviceInterface of interfaces) {
+      const addressInfo = serviceInterface.addressInfo
+      if (!addressInfo) continue
+
+      urls.push(
+        ...addressInfo.public
+          .filter({ kind: 'domain' })
+          .format('urlstring'),
+        ...addressInfo
+          .filter({ kind: 'domain' })
+          .format('urlstring'),
+        ...addressInfo.nonLocal.format('urlstring'),
+      )
+    }
+  } catch (err) {
+    log('Interface URL lookup skipped', err)
   }
 
-  const result = await effects.systemQuery(
-    'try { interfaces } catch { null }',
-  )
-  if (!result) return []
-
-  const systemUrls: string[] = []
-
-  for (const inf of result) {
-    const url = inf['url'] as string | undefined
-    if (url) systemUrls.push(url)
+  try {
+    if (typeof effects?.getOutboundGateway === 'function') {
+      const gateway = await sdk.getOutboundGateway(effects).once()
+      if (gateway) urls.push(gateway)
+    }
+  } catch (err) {
+    log('Outbound gateway lookup skipped', err)
   }
 
-  return systemUrls
+  return urls.filter((url, index, arr) => url && arr.indexOf(url) === index)
 }
 
 export const hostFromUrl = (url: string): string => {
