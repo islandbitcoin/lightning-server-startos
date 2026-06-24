@@ -38,6 +38,11 @@ export function log(message: string, details?: unknown) {
 export const getHttpInterfaceUrls = async (
   effects: any,
 ): Promise<string[]> => {
+  if (typeof effects?.systemQuery !== 'function') {
+    log('Interface URL lookup skipped; systemQuery is unavailable in this StartOS runtime')
+    return []
+  }
+
   const result = await effects.systemQuery(
     'try { interfaces } catch { null }',
   )
