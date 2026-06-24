@@ -1,12 +1,71 @@
 import { sdk } from './sdk'
+import { storeJson } from './fileModels/store.json'
 import { appUrl, httpPort, log, mountVolume, serviceName, subcontainerName } from './utils'
 
 export const main = sdk.setupMain(async ({ effects }) => {
+  const store = (await storeJson.read((s) => s).const(effects)) ?? {
+    domain: '',
+    catchAll: true,
+    users: '',
+    forwards: '{}',
+    lndGrpcHost: '',
+    lndRestHost: '',
+    lndInvoiceMacaroon: '',
+    lndPrivateChannels: false,
+    emailSender: '',
+    emailPassword: '',
+    emailRecipient: '',
+    emailBcc: '',
+    pushoverToken: '',
+    pushoverUser: '',
+    nostrPublicKey: '',
+    nostrPrivateKey: '',
+    mongoEnabled: false,
+    mongoUser: '',
+    mongoPass: '',
+    mongoUrl: '',
+    meta: '',
+  }
+  const env: Record<string, string> = {
+    NODE_ENV: 'production',
+    PORT: String(httpPort),
+  }
+
+  const addEnv = (name: string, value: string | boolean) => {
+    const normalized = String(value)
+    if (normalized.length > 0) {
+      env[name] = normalized
+    }
+  }
+
+  addEnv('DOMAIN', store.domain)
+  addEnv('GRPC_HOST', store.lndGrpcHost)
+  addEnv('REST_HOST', store.lndRestHost)
+  addEnv('INVOICE_MACAROON', store.lndInvoiceMacaroon)
+  addEnv('PRIVATE_CHANNELS', store.lndPrivateChannels)
+  addEnv('USERS', store.users)
+  addEnv('CATCH_ALL', store.catchAll)
+  addEnv('FORWARDS', store.forwards)
+  addEnv('META', store.meta)
+  addEnv('EMAIL_SENDER', store.emailSender)
+  addEnv('EMAIL_PASSWORD', store.emailPassword)
+  addEnv('EMAIL_RECIPIENT', store.emailRecipient)
+  addEnv('EMAIL_BCC', store.emailBcc)
+  addEnv('PUSHOVER_TOKEN', store.pushoverToken)
+  addEnv('PUSHOVER_USER', store.pushoverUser)
+  addEnv('NOSTR_PUBLIC_KEY', store.nostrPublicKey)
+  addEnv('NOSTR_PRIVATE_KEY', store.nostrPrivateKey)
+  addEnv('USE_MONGO', store.mongoEnabled)
+  addEnv('MONGODB_USER', store.mongoUser)
+  addEnv('MONGODB_PASS', store.mongoPass)
+  addEnv('MONGODB_URL', store.mongoUrl)
+
   log('Setting up main service', {
     serviceName,
     httpPort,
     appUrl,
     mountpoint: mountVolume.mountpoint,
+    configuredEnvVars: Object.keys(env).filter((name) => name !== 'NODE_ENV' && name !== 'PORT'),
   })
 
   const mounts = sdk.Mounts.of().mountVolume(mountVolume)
@@ -30,10 +89,7 @@ export const main = sdk.setupMain(async ({ effects }) => {
     subcontainer,
     exec: {
       command: sdk.useEntrypoint(),
-      env: {
-        NODE_ENV: 'production',
-        PORT: String(httpPort),
-      },
+      env,
     },
     ready: {
       display: 'Web Interface',
