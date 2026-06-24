@@ -19,29 +19,32 @@ Lightning Server enables you to receive **Lightning Address** payments at `you@y
 
 ## Getting Started
 
-1. Start Lightning Server
-2. Open the Web UI from the **Properties** section
-3. Review the dashboard to confirm your configuration
-4. Set your environment variables (DOMAIN, GRPC_HOST, INVOICE_MACAROON, etc.)
+1. Install and start the LND dependency on this StartOS server.
+2. Add a public domain to Lightning Server if you want a public Lightning Address.
+3. Run **Configure Lightning Address**. The domain field will prefer your public outbound gateway domain when one is available.
+4. Run **Configure LND Node**. By default, Lightning Server uses the self-hosted LND dependency mounted on this server.
+5. Optional: run the notification, Nostr, and MongoDB alias actions.
+6. Start Lightning Server and open the Web UI from the **Properties** section.
 
 ### Required Configuration
 
-You must provide these environment variables for the service to function:
+Lightning Server is configured through StartOS actions. The main required settings are:
 
-- `DOMAIN` — your domain name (e.g., `yourdomain.com`)
-- `GRPC_HOST` — your LND gRPC endpoint (e.g., `lnd.example.com:10009`)
-- `INVOICE_MACAROON` — hex-encoded invoice macaroon from your LND node
-- `REST_HOST` — your LND REST endpoint (for the notifier WebSocket)
+- Lightning Address domain — your public domain, such as `pay.example.com`
+- LND dependency — the local StartOS LND service
+- LND gRPC endpoint — defaults to `lnd.embassy:10009`
+- LND REST endpoint — defaults to `lnd.embassy:8080`
+- Invoice macaroon — defaults to the mounted LND invoice macaroon
 
 ### Optional Configuration
 
-- `USERS` — comma-separated list of valid usernames
-- `CATCH_ALL` — accept payments to any username (default: `true`)
-- `FORWARDS` — JSON map of username → external Lightning Address
-- `USE_MONGO` — enable MongoDB alias forwarding
-- `NOSTR_PUBLIC_KEY` / `NOSTR_PRIVATE_KEY` — custom Nostr keys for zap receipts
-- `PUSHOVER_TOKEN` / `PUSHOVER_USER` — push notification credentials
-- `EMAIL_SENDER` / `EMAIL_PASSWORD` / `EMAIL_RECIPIENT` — email notification config
+- Users — comma-separated list of valid usernames
+- Catch-All — accept payments to any username
+- Forwards — JSON map of username to external Lightning Address
+- MongoDB aliases — dynamic Lightning Address aliases
+- Nostr public/private keys — custom keys for zap receipts
+- Pushover token/user — push notification credentials
+- Email sender/password/recipient — email notification config
 
 ## API Endpoints
 
@@ -60,7 +63,8 @@ This service stores its data in a single volume (`main`). Standard StartOS backu
 ## Security
 
 - All traffic is encrypted via StartOS's Tor or LAN interfaces
-- LND macaroon and Nostr keys are passed via environment variables
+- LND macaroon and Nostr keys are stored on encrypted StartOS volumes
+- The default LND macaroon is read from the mounted local LND dependency
 - No write/admin surface is exposed without LND credentials
 
 ## Upstream

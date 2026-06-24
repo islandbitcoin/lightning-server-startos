@@ -1,6 +1,19 @@
 import { sdk } from './sdk'
 import { storeJson } from './fileModels/store.json'
-import { appUrl, httpPort, log, mountVolume, serviceName, subcontainerName } from './utils'
+import {
+  appUrl,
+  defaultLndGrpcHost,
+  defaultLndInvoiceMacaroonFile,
+  defaultLndRestHost,
+  defaultLndTlsCertFile,
+  httpPort,
+  lndDependencyId,
+  lndMountpoint,
+  log,
+  mountVolume,
+  serviceName,
+  subcontainerName,
+} from './utils'
 
 export const main = sdk.setupMain(async ({ effects }) => {
   const store = (await storeJson.read((s) => s).const(effects)) ?? {
@@ -39,9 +52,13 @@ export const main = sdk.setupMain(async ({ effects }) => {
   }
 
   addEnv('DOMAIN', store.domain)
-  addEnv('GRPC_HOST', store.lndGrpcHost)
-  addEnv('REST_HOST', store.lndRestHost)
+  addEnv('GRPC_HOST', store.lndGrpcHost || defaultLndGrpcHost)
+  addEnv('REST_HOST', store.lndRestHost || defaultLndRestHost)
   addEnv('INVOICE_MACAROON', store.lndInvoiceMacaroon)
+  if (!store.lndInvoiceMacaroon) {
+    addEnv('INVOICE_MACAROON_FILE', defaultLndInvoiceMacaroonFile)
+  }
+  addEnv('LND_TLS_CERT_FILE', defaultLndTlsCertFile)
   addEnv('PRIVATE_CHANNELS', store.lndPrivateChannels)
   addEnv('USERS', store.users)
   addEnv('CATCH_ALL', store.catchAll)
@@ -68,7 +85,15 @@ export const main = sdk.setupMain(async ({ effects }) => {
     configuredEnvVars: Object.keys(env).filter((name) => name !== 'NODE_ENV' && name !== 'PORT'),
   })
 
-  const mounts = sdk.Mounts.of().mountVolume(mountVolume)
+  const mounts = sdk.Mounts.of()
+    .mountVolume(mountVolume)
+    .mountDependency({
+      dependencyId: lndDependencyId,
+      volumeId: 'main',
+      subpath: null,
+      mountpoint: lndMountpoint,
+      readonly: true,
+    })
   log('Mount configuration created', mountVolume)
 
   const subcontainer = await sdk.SubContainer.of(

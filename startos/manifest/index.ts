@@ -28,5 +28,15 @@ export const manifest = setupManifest({
       arch: ['x86_64', 'aarch64'],
     },
   },
-  dependencies: {},
+  dependencies: {
+    lnd: {
+      description:
+        'Lightning Server uses your self-hosted LND node to generate BOLT11 invoices and monitor received payments.',
+      optional: false,
+      metadata: {
+        title: 'LND',
+        icon: 'https://raw.githubusercontent.com/Start9Labs/lnd-startos/master/icon.svg',
+      },
+    },
+  },
 })
