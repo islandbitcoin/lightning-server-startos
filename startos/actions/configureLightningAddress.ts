@@ -16,7 +16,7 @@ export const inputSpec = InputSpec.of({
       current ||
       hosts.find((host) => !host.endsWith('.local') && !host.endsWith('.embassy')) ||
       hosts[0] ||
-      'lightning-server.embassy'
+      'lightning-server.local'
 
     return {
       name: 'Domain',
@@ -27,7 +27,7 @@ export const inputSpec = InputSpec.of({
             (obj, host) => ({ ...obj, [host]: host }),
             {} as Record<string, string>,
           )
-        : { 'lightning-server.embassy': 'lightning-server.embassy' },
+        : { 'lightning-server.local': 'lightning-server.local' },
       default: preferred,
     }
   }),
