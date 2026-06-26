@@ -24,7 +24,7 @@ export const manifest = setupManifest({
   volumes: ['main'],
   images: {
     'lightning-server': {
-      source: { dockerTag: 'ghcr.io/forge0x/lightning-server:0.2.0' },
+      source: { dockerTag: 'ghcr.io/forge0x/lightning-server:0.2.1' },
       arch: ['x86_64', 'aarch64'],
     },
   },
