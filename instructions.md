@@ -8,14 +8,14 @@ Lightning Server enables you to receive **Lightning Address** payments at `you@y
 
 **Key features:**
 
-- **Lightning Address** — LNURL-pay endpoints at `/.well-known/lnurlp/:user`
-- **Nostr Zap Receipts** — automatically publishes kind 9735 zap receipts to relays
-- **Payment Notifications** — beautiful HTML email + Pushover push alerts
-- **Multi-user** — configure multiple Lightning Addresses
-- **Alias Forwarding** — forward addresses to external Lightning Addresses
-- **MongoDB Integration** — dynamically add aliases via database
-- **Phoenixd Webhooks** — receive payment notifications from phoenixd
-- **Web Dashboard** — view configuration, API endpoints, and status
+- **Lightning Address**: LNURL-pay endpoints at `/.well-known/lnurlp/:user`
+- **Nostr Zap Receipts**: automatically publishes kind 9735 zap receipts to relays
+- **Payment Notifications**: HTML email + Pushover push alerts
+- **Multi-user**: configure multiple Lightning Addresses
+- **Alias Forwarding**: forward addresses to external Lightning Addresses
+- **MongoDB Integration**: dynamically add aliases via database
+- **Phoenixd Webhooks**: receive payment notifications from phoenixd
+- **Web Dashboard**: view configuration, API endpoints, and status
 
 ## Getting Started
 
@@ -30,21 +30,21 @@ Lightning Server enables you to receive **Lightning Address** payments at `you@y
 
 Lightning Server is configured through StartOS actions. The main required settings are:
 
-- Lightning Address domain — your public domain, such as `pay.example.com`
-- LND dependency — the local StartOS LND service
-- LND gRPC endpoint — defaults to `lnd.embassy:10009`
-- LND REST endpoint — defaults to `lnd.embassy:8080`
-- Invoice macaroon — defaults to the mounted LND invoice macaroon
+- Lightning Address domain: your public domain, such as `pay.example.com`
+- LND dependency: the local StartOS LND service
+- LND gRPC endpoint: defaults to `lnd.embassy:10009`
+- LND REST endpoint: defaults to `lnd.embassy:8080`
+- Invoice macaroon: defaults to the mounted LND invoice macaroon
 
 ### Optional Configuration
 
-- Users — comma-separated list of valid usernames
-- Catch-All — accept payments to any username
-- Forwards — JSON map of username to external Lightning Address
-- MongoDB aliases — dynamic Lightning Address aliases
-- Nostr public/private keys — custom keys for zap receipts
-- Pushover token/user — push notification credentials
-- Email sender/password/recipient — email notification config
+- Users: comma-separated list of valid usernames
+- Catch-All: accept payments to any username
+- Forwards: JSON map of username to external Lightning Address
+- MongoDB aliases: dynamic Lightning Address aliases
+- Nostr public/private keys: custom keys for zap receipts
+- Pushover token/user: push notification credentials
+- Email sender/password/recipient: email notification config
 
 ## API Endpoints
 
