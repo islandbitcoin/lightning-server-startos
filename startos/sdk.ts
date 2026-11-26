@@ -11,13 +11,8 @@ export const webMultiHostId = 'ui-multi'
 export const httpPort = 3000
 export const appUrl = 'https://lightning-server.local'
 export const lndDependencyId = 'lnd'
-export const lndMountpoint = '/mnt/lnd'
 export const defaultLndGrpcHost = 'lnd.embassy:10009'
 export const defaultLndRestHost = 'lnd.embassy:8080'
-export const defaultLndInvoiceMacaroonFile =
-  `${lndMountpoint}/data/chain/bitcoin/mainnet/invoice.macaroon`
-export const defaultLndTlsCertFile = `${lndMountpoint}/tls.cert`
-
 export const mountVolume = {
   volumeId: 'main' as const,
   subpath: null as string | null,

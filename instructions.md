@@ -22,7 +22,7 @@ Lightning Server enables you to receive **Lightning Address** payments at `you@y
 1. Install and start the LND dependency on this StartOS server.
 2. Add a public domain to Lightning Server if you want a public Lightning Address.
 3. Run **Configure Lightning Address**. The domain field will prefer your public outbound gateway domain when one is available.
-4. Run **Configure LND Node**. By default, Lightning Server uses the self-hosted LND dependency mounted on this server.
+4. Run **Configure LND Node**. Enter the invoice macaroon and TLS certificate from the same LND node. This step is required on first install and after upgrading from 0.2.2:1. Existing Lightning Address and notification settings carry over.
 5. Optional: run the notification, Nostr, and MongoDB alias actions.
 6. Start Lightning Server and open the Web UI from the **Properties** section.
 
@@ -34,7 +34,9 @@ Lightning Server is configured through StartOS actions. The main required settin
 - LND dependency: the local StartOS LND service
 - LND gRPC endpoint: defaults to `lnd.embassy:10009`
 - LND REST endpoint: defaults to `lnd.embassy:8080`
-- Invoice macaroon: defaults to the mounted LND invoice macaroon
+- Invoice macaroon: paste the hex encoding of `invoice.macaroon` from your LND node. From an authorized LND shell, `xxd -p -c 100000 invoice.macaroon` prints it. Keep this value private.
+- TLS certificate: paste the contents of the same node’s `tls.cert`, including its BEGIN and END CERTIFICATE lines.
+- Use a gRPC address listed in the certificate. Re-run **Configure LND Node** if you rotate either credential. Enter these settings in StartOS. The web dashboard’s saved LND settings do not control this connection.
 
 ### Optional Configuration
 
@@ -58,13 +60,13 @@ Lightning Server is configured through StartOS actions. The main required settin
 
 ## Backups
 
-This service stores its data in a single volume (`main`). Standard StartOS backup/restore is supported.
+StartOS backs up the main data and settings volume together with the private LND credentials volume. Protect backups as you would the invoice credential.
 
 ## Security
 
 - All traffic is encrypted via StartOS's Tor or LAN interfaces
 - LND macaroon and Nostr keys are stored on encrypted StartOS volumes
-- The default LND macaroon is read from the mounted local LND dependency
+- Only the invoice credential and certificate you supply are available to Lightning Server. The package has no mount into LND.
 - No write/admin surface is exposed without LND credentials
 
 ## Upstream

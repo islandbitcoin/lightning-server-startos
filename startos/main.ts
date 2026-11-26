@@ -1,14 +1,9 @@
+import { lndCredentials, credentialDirectory, writeCredentialFiles } from './fileModels/lndCredentials'
 import { sdk } from './sdk'
 import { storeJson } from './fileModels/store.json'
 import {
   appUrl,
-  defaultLndGrpcHost,
-  defaultLndInvoiceMacaroonFile,
-  defaultLndRestHost,
-  defaultLndTlsCertFile,
   httpPort,
-  lndDependencyId,
-  lndMountpoint,
   log,
   mountVolume,
   serviceName,
@@ -52,14 +47,12 @@ export const main = sdk.setupMain(async ({ effects }) => {
   }
 
   addEnv('DOMAIN', store.domain)
-  addEnv('GRPC_HOST', store.lndGrpcHost || defaultLndGrpcHost)
-  addEnv('REST_HOST', store.lndRestHost || defaultLndRestHost)
-  addEnv('INVOICE_MACAROON', store.lndInvoiceMacaroon)
-  if (!store.lndInvoiceMacaroon) {
-    addEnv('INVOICE_MACAROON_FILE', defaultLndInvoiceMacaroonFile)
-  }
-  addEnv('LND_TLS_CERT_FILE', defaultLndTlsCertFile)
-  addEnv('PRIVATE_CHANNELS', store.lndPrivateChannels)
+  const credentials = await lndCredentials.read().const(effects)
+  if (!credentials) throw new Error('Complete Configure LND Node before starting Lightning Server.')
+  addEnv('GRPC_HOST', credentials.grpcHost)
+  addEnv('REST_HOST', credentials.restHost)
+  addEnv('LND_TLS_CERT_FILE', `${credentialDirectory}/tls.cert`)
+  addEnv('PRIVATE_CHANNELS', credentials.privateChannels)
   addEnv('USERS', store.users)
   addEnv('CATCH_ALL', store.catchAll)
   addEnv('FORWARDS', store.forwards)
@@ -85,15 +78,7 @@ export const main = sdk.setupMain(async ({ effects }) => {
     configuredEnvVars: Object.keys(env).filter((name) => name !== 'NODE_ENV' && name !== 'PORT'),
   })
 
-  const mounts = sdk.Mounts.of()
-    .mountVolume(mountVolume)
-    .mountDependency({
-      dependencyId: lndDependencyId,
-      volumeId: 'main',
-      subpath: null,
-      mountpoint: lndMountpoint,
-      readonly: true,
-    })
+  const mounts = sdk.Mounts.of().mountVolume(mountVolume)
   log('Mount configuration created', mountVolume)
 
   const subcontainer = await sdk.SubContainer.of(
@@ -102,6 +87,7 @@ export const main = sdk.setupMain(async ({ effects }) => {
     mounts,
     subcontainerName,
   )
+  await writeCredentialFiles(subcontainer, credentials)
   log('Subcontainer created', {
     imageId: serviceName,
     subcontainerName,
