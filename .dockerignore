@@ -1,0 +1,6 @@
+**
+!Dockerfile
+!image/
+!image/inputs/
+!image/inputs/*.squashfs
+!image/managed-lnd.cjs

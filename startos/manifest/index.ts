@@ -21,10 +21,10 @@ export const manifest = setupManifest({
         'phoenixd webhooks, and Nostr profile resolution.',
     },
   },
-  volumes: ['main'],
+  volumes: ['main', 'credentials'],
   images: {
     'lightning-server': {
-      source: { dockerTag: 'ghcr.io/forge0x/lightning-server:0.2.1' },
+      source: { dockerBuild: {} },
       arch: ['x86_64', 'aarch64'],
     },
   },

@@ -7,7 +7,7 @@ export const setLightningDomain = sdk.setupOnInit(async (effects: any) => {
   const hosts = (await getHttpInterfaceUrls(effects)).map(hostFromUrl)
   const preferred =
     hosts.find((host) => !host.endsWith('.local') && !host.endsWith('.embassy'))
-  if (preferred && (!currentDomain || !hosts.includes(currentDomain))) {
+  if (preferred && !currentDomain) {
     await storeJson.merge(
       effects,
       { domain: preferred },
