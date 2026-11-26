@@ -1,3 +1,4 @@
+import { actions } from '../actions'
 import { configureLnd } from '../actions/configureLnd'
 import { lndCredentials } from '../fileModels/lndCredentials'
 import { sdk } from '../sdk'
@@ -12,6 +13,7 @@ export const init = sdk.setupInit(
   versionGraph,
   setInterfaces,
   setDependencies,
+  actions,
   setLightningDomain,
   sdk.setupOnInit(async effects => {
     if (!(await lndCredentials.read().const(effects))) {
